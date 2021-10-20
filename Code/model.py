@@ -204,7 +204,7 @@ class model():
 		k = 1
 		a = self.a_f(N)
 		H = self.H_f(N)
-		return a/(1. + a*H/k)/H
+		return 1#a/(1. + a*H/k)/H
 
 	def dscale_f(self, N):
 		"""
@@ -214,7 +214,7 @@ class model():
 		a = self.a_f(N)
 		H = self.H_f(N)
 		Hd = self.dH_f(N)
-		return -Hd/H/H*a/(1. + a*H/k) + a/(1. + a*H/k) - a*(a*H*H/k + a*Hd/k)/(1. + a*H/k)/(1. + a*H/k)/H
+		return 0#-Hd/H/H*a/(1. + a*H/k) + a/(1. + a*H/k) - a*(a*H*H/k + a*Hd/k)/(1. + a*H/k)/(1. + a*H/k)/H
 
 
 
@@ -292,10 +292,10 @@ class model():
 		Aabc[1:, 1:, 0] += 2*X
 		##Aabc[1:, 1:, 0] += 2*self.epsilon * self.Omega2
 		Aabc[1:, 1:, 1] += -2*Y/self.H * np.sqrt(2/self.epsilon) * self.omega1/self.Mp
-		##Aabc[1:, 1:, 0] += 2*self.epsilon * self.Omega2
+		##Aabc[1:, 1:, 0] += -self.epsilon * self.Omega2
 		Aabc[1:, 1:, 0] += -self.epsilon * k1k2/self.a**2 * np.identity(Nfield-1)
 		##Aabc[1:, 1:, 1:] += -4/3 * np.sqrt(2*self.epsilon) * self.H * self.Mp * np.tensordot(self.Omega, self.Rabcs, axes = ([1, 0]))
-		Aabc[1:, 1:, 1:] += -1/3 * Z
+		##Aabc[1:, 1:, 1:] += -1/3 * Z
 
 		return Aabc
 
@@ -329,9 +329,9 @@ class model():
 		##Aabc[0, 1, 1:] += -8*self.Omega[0,:]/self.H * self.omega1**2
 		Aabc[1:, 1:, 0] += 2*X
 		##Aabc[1:, 1:, 0] += 2*self.epsilon * self.Omega2
-		##Aabc[1:, 1:, 1] += -2*Y/self.H * np.sqrt(2/self.epsilon) * self.omega1/self.Mp
-		##Aabc[1:, 1:, 0] += -2*self.epsilon * self.Omega2
-		##Aabc[1:, 1:, 1:] += 4/3 * np.sqrt(2*self.epsilon) * self.H * self.Mp * np.tensordot(self.Omega, self.Rabcs, axes = ([1, 0]))
+		Aabc[1:, 1:, 1] += -2*Y/self.H * np.sqrt(2/self.epsilon) * self.omega1/self.Mp
+		##Aabc[1:, 1:, 0] += -self.epsilon * self.Omega2
+		##Aabc[1:, 1:, 1:] += -4/3 * np.sqrt(2*self.epsilon) * self.H * self.Mp * np.tensordot(self.Omega, self.Rabcs, axes = ([1, 0]))
 		Aabc[1:, 1:, 1:] += -1/3 * Z
 
 		return Aabc
@@ -350,7 +350,6 @@ class model():
 		##Babc[0, 1:, 0] += 2*np.sqrt(2/self.epsilon) * self.omega1/self.Mp * self.Omega[0,:]/self.H
 		##Babc[0, 1:, 1:] += -self.epsilon * self.Omega
 		Babc[1:, 1:, 0] += Y/self.H/self.epsilon/self.Mp**2
-		##Babc[0, 1:, 1:] += 2*self.epsilon*self.Omega
 		##Babc[1:, 1:, 1:] += 4/3 * np.sqrt(2*self.epsilon) * self.H * self.Mp * np.transpose(self.Rabcs, (2, 0, 1))
 
 		return Babc
@@ -363,7 +362,7 @@ class model():
 		k1k2 = (k3**2 - k1**2 - k2**2)/2
 
 		Cabc[0, 0, 0] += (self.epsilon - self.eta)/2/self.epsilon/self.Mp**2
-		Cabc[0, 0, 0] += (self.epsilon/2 - 2)/2/self.Mp**2 * k1k3/k2**2
+		Cabc[0, 0, 0] += (self.epsilon/2 - 2)/2/self.Mp**2 * k1k3/k1**2
 		Cabc[0, 0, 0] += self.epsilon/8/self.Mp**2 * k3**2/k1**2/k2**2 * k1k2
 		Cabc[0, 0, 1] += -1/2/self.H * np.sqrt(2/self.epsilon**3) * self.omega1/self.Mp**3
 		Cabc[1:, 1:, 0] += self.epsilon * np.identity(Nfield-1)
@@ -420,5 +419,11 @@ class model():
 		# uABC[:Nfield, :Nfield, Nfield:] = -np.transpose(C132, (0, 2, 1))/H #- C132/H /S
 		# uABC[Nfield:, Nfield:, Nfield:] = np.transpose(C321, (2, 1, 0))/H #C321/H /S
 		# uABC[Nfield:, :Nfield, Nfield:] = B123/H #B123/H
+
+		# print("blablabla")
+		# for i in range(2*Nfield):
+		# 	for j in range(2*Nfield):
+		# 		print(uABC[0, i, j])
+		# print("blablabla")
 		
 		return uABC

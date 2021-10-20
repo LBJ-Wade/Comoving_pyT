@@ -866,5 +866,28 @@ class solver():
 		Sigma_Im_k3 = np.reshape(f[n*5:n*6], (2*Nfield, 2*Nfield, Nl))
 		B           = np.reshape(f[n*6:], (2*Nfield, 2*Nfield, 2*Nfield, Nl))
 
+
+		#Boundary terms
+		mdl = model(N = Nspan, Nfield = self.Nfield, interpolated = self.interpolated)
+		a = mdl.omega1_f(Nspan)/mdl.H_f(Nspan)/self.Mp*np.sqrt(2/mdl.epsilon_f(Nspan))
+		boundary_term = - a * (Sigma_Re_k1[0, 1]*Sigma_Re_k2[0, 0]
+						  	  +Sigma_Re_k1[0, 1]*Sigma_Re_k3[0, 0]
+						  	  +Sigma_Re_k2[0, 1]*Sigma_Re_k3[0, 0]
+						  	  +Sigma_Re_k2[0, 1]*Sigma_Re_k1[0, 0]
+						  	  +Sigma_Re_k3[0, 1]*Sigma_Re_k1[0, 0]
+						  	  +Sigma_Re_k3[0, 1]*Sigma_Re_k2[0, 0])
+		B[0, 0, 0] += boundary_term
+
+
 		f = [Sigma_Re_k1, Sigma_Re_k2, Sigma_Re_k3, Sigma_Im_k1,Sigma_Im_k2, Sigma_Im_k3, B]
-		return f
+
+		#Construct uAB and uABC as function of efolds
+		uAB = []
+		uABC = []
+
+		for i in range(Nl):
+			mdl = model(N = Nspan[i], Nfield = self.Nfield, interpolated = self.interpolated)
+			uAB.append(mdl.u_AB(k1))
+			uABC.append(mdl.u_ABC(k1, k2, k3))
+
+		return f, np.asarray(uAB), np.asarray(uABC), boundary_term
